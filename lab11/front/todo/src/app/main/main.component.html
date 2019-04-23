@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1>Lists</h1>
+      <div class="card" style="width: 18rem;">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" (click)="getTasks(tasklist)" *ngFor="let tasklist of tasklists">
+              {{tasklist.name}}
+            </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col">
+      <h1 *ngIf="current_tasklist">Tasks of {{current_tasklist.name}}</h1>
+      <div *ngFor="let tasks of tasks" class="card w-75">
+        <button type="button" class="btn btn-primary m-2" (click)="getTask(tasks)">{{tasks.name}}</button>
+        <div *ngIf="current_task">
+          <div *ngIf="current_task.id == tasks.id" class="card-body">
+            <b>ID:</b> {{current_task.id}} <br>
+            <b>Name:</b> {{current_task.name}} <br>
+            <b>Created date:</b> {{current_task.created_at}} <br>
+            <b>Due date:</b> {{current_task.due_on}} <br>
+            <b>Status:</b> {{current_task.status}} <br>
+            <b>Task:</b> {{current_task.task_list.name}} <br>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
