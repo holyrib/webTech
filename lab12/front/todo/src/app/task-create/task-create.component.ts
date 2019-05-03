@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {TaskList} from "../main/interface/task-list";
+import {MainComponent} from '../main/main.component'
 
 @Component({
   selector: 'app-task-create',
@@ -11,6 +12,7 @@ export class TaskCreateComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
   }
 
 

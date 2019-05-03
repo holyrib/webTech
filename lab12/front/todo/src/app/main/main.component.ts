@@ -19,7 +19,7 @@ export class MainComponent implements OnInit {
   public task_due_on: any='';
   public task_status: any='';
   public default_date = '2019-04-23'
-  public show =''
+  public mode: String='';
 
   constructor(private provider: ProviderService) {
   }
@@ -29,29 +29,16 @@ export class MainComponent implements OnInit {
       this.tasklists = res;
     })
   }
-  changeshow(show: String){
-    this.show = show;
-  }
-  getTaskList(tasklist: TaskList){
-    this.provider.getTaskList(tasklist).then(res => {
+
+  getTaskList(task_list: TaskList){
+    this.provider.getTaskList(task_list).then(res => {
       this.current_tasklist = res;
     })
-    this.changeshow('update_list');
-  }
-  getTasks(task_list: TaskList) {
-    this.provider.getTasks(task_list).then(res => {
-      this.tasks = res;
-      this.current_tasklist = task_list;
-    })
+    this.changeMode('update_list');
   }
 
-  getTask(task: Task) {
-    this.provider.getTask(task).then(res => {
-      this.current_task = res;
-    })
-  }
   createTaskList(){
-    this.changeshow('create_list');
+    this.changeMode('create_list');
     if(this.tasklist_name != '') {
       this.provider.createTaskList(this.tasklist_name).then(res => {
         this.tasklists.push(res)
@@ -59,19 +46,7 @@ export class MainComponent implements OnInit {
       })
     }
   }
-  createTask(task_list: TaskList){
-    this.changeMode('create_task');
-    if(this.task_name != '' || this.task_created_at != '' || this.task_due_on != '' || this.task_status != '') {
-      this.provider.createTask(task_list, this.task_name, this.task_created_at, this.task_due_on, this.task_status).then(res => {
-        this.mode = 'tasks';
-        this.tasks.push(res);
-        this.task_list_name = '';
-        this.task_created_at = '';
-        this.task_due_on = '';
-        this.task_status = ''
-      })
-    }
-  }
+
   updateTaskList(){
     if(this.tasklist_name != ''){
       this.current_tasklist.name = this.tasklist_name;
@@ -84,15 +59,9 @@ export class MainComponent implements OnInit {
         this.tasklist_name = '';
       })
     }
+
   }
-  updateTask(task: Task){
-    this.provider.updateTask(task).then(res => {
-      this.task_name = '';
-      this.task_created_at = '';
-      this.task_due_on = '';
-      this.task_status = '';
-    })
-  }
+
   deleteTaskList(id: number){
     this.provider.deleteTaskList(id).then(res => {
       for( let i = 0; i < this.tasklists.length; i++){
@@ -102,6 +71,44 @@ export class MainComponent implements OnInit {
       }
     })
   }
+
+  getTasks(task_lists: TaskList){
+    this.changeMode('tasks');
+    this.provider.getTasks(task_lists).then(res => {
+      this.tasks = res;
+      this.current_tasklist = task_lists;
+    })
+  }
+
+  createTask(tasklist: TaskList){
+    this.changeMode('create_task');
+    if(this.task_name != '' || this.task_created_at != '' || this.task_due_on != '' || this.task_status != '') {
+      this.provider.createTask(tasklist, this.task_name, this.task_due_on, this.task_status).then(res => {
+        this.tasks.push(res);
+        this.tasklist_name = '';
+        this.task_due_on = '';
+        this.task_status = ''
+      })
+    }
+  }
+
+  getTask(task: Task){
+    this.provider.getTask(task).then( res => {
+      this.current_task = res;
+    })
+  }
+
+  updateTask(task: Task){
+    this.changeMode('update_task');
+    this.provider.updateTask(task).then(res => {
+      this.changeMode('task')
+      this.task_name = '';
+      this.task_created_at = '';
+      this.task_due_on = '';
+      this.task_status = '';
+    })
+  }
+
   deleteTask(id: number){
     this.provider.deleteTask(id).then(res => {
       for( let i = 0; i < this.tasks.length; i++){
@@ -110,6 +117,10 @@ export class MainComponent implements OnInit {
         }
       }
     })
+  }
+
+  changeMode(mode: String){
+    this.mode = mode;
   }
 
 

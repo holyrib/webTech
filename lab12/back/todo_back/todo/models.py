@@ -3,6 +3,7 @@ import datetime
 
 # Create your models here.
 
+
 class TaskList(models.Model):
     name = models.CharField(max_length=255, null=False)
 
@@ -42,3 +43,5 @@ class Task(models.Model):
             'status': self.status,
             'task_list': self.task_list.to_json(),
         }
+
+

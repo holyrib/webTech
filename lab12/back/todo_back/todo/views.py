@@ -8,13 +8,15 @@ from .serializers import TaskListSerializer, TaskSerializer
 
 @csrf_exempt
 def tasklist_list(request):
+    print(request)
+    print('popopopo')
     if request.method == 'GET':
         tasklists = TaskList.objects.all()
         serializer = TaskListSerializer(tasklists, many=True)
         return JsonResponse(serializer.data, safe=False, status=200)
 
     elif request.method == 'POST':
-        data = json.loads(request.body)
+        data = JSONParser().parse(request)
         serializer = TaskListSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -62,7 +64,7 @@ def tasklist_task_list(request, pk):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors)
-
+@csrf_exempt
 def task_detail(request, pk):
     try:
         task = Task.objects.get(id=pk)

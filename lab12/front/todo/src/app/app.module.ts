@@ -9,6 +9,7 @@ import {HttpClientModule} from "@angular/common/http";
 import {Routes} from "@angular/router";
 import { TaskCreateComponent } from './task-create/task-create.component';
 import { TasklistCreateComponent } from './tasklist-create/tasklist-create.component';
+import {FormsModule} from "@angular/forms";
 
 
 
@@ -24,6 +25,8 @@ import { TasklistCreateComponent } from './tasklist-create/tasklist-create.compo
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    FormsModule,
+
   ],
   providers: [ProviderService],
   bootstrap: [AppComponent]

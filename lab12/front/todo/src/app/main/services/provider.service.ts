@@ -14,7 +14,7 @@ export class ProviderService extends MainService {
     super(http);
   }
   getTaskList(task_list: TaskList): Promise<TaskList>{
-    return this.get(`http://localhost:8000/api/task_list/${task_list.id}/`, {})
+    return this.get(`http://localhost:8000/api/tasklist/${task_list.id}/`, {})
   }
 
   getTaskLists(): Promise<TaskList[]> {
@@ -22,7 +22,7 @@ export class ProviderService extends MainService {
   }
 
   getTasks(tasklist: TaskList): Promise<Task[]> {
-    return this.get(`http://localhost:8000/api/tasklists/${tasklist.id}/tasks/`, {});
+    return this.get(`http://localhost:8000/api/tasklist/${tasklist.id}/tasks/`, {});
   }
   getTask(task: Task): Promise<Task>{
     return this.get(`http://localhost:8000/api/tasks/${task.id}/`, {})
@@ -37,20 +37,22 @@ export class ProviderService extends MainService {
   }
 
   updateTaskList(list: TaskList): Promise<TaskList> {
-    return this.put(`http://localhost:8000/api/task_lists/${list.id}/`, {
+    return this.put(`http://localhost:8000/api/tasklists/${list.id}/`, {
       name: list.name
     });
   }
   deleteTaskList(id: number): Promise<any> {
-    return this.delet(`http://localhost:8000/api/task_lists/${id}/`, {});
+    return this.delete(`http://localhost:8000/api/task_lists/${id}/`, {});
   }
 
-  createTask(name: any,created_at:any,due_on:any,status:any,list:TaskList): Promise<Task> {
-    return this.post(`http://localhost:8000/api/task_lists/${list.id}/tasks/`, {
+  createTask(list:TaskList, name: any,due_on:any,status:any): Promise<Task> {
+    console.log(list)
+    console.log('iiiiiid')
+    return this.post(`http://localhost:8000/api/tasklist/${list.id}/tasks/`, {
       name: name,
-      created_at : created_at,
-      due_on:due_on,
-      status:status
+      due_on: due_on,
+      status: status,
+      task_list: list.id
     });
   }
   updateTask(task: Task){
@@ -63,6 +65,6 @@ export class ProviderService extends MainService {
   }
 
   deleteTask(id: number){
-    return this.delet(`http://localhost:8000/api/tasks/${id}/`, {})
+    return this.delete(`http://localhost:8000/api/tasks/${id}/`, {})
   }
 }
