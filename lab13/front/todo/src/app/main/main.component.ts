@@ -136,6 +136,8 @@ export class MainComponent implements OnInit {
   login(){
     if (this.username != '' && this.password != ''){
       this.provider.login(this.username, this.password).then(res => {
+        console.log(res.token)
+        console.log('aaa')
         localStorage .setItem('JWT', res.token);
         localStorage .setItem('name', this.username);
 

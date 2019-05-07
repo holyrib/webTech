@@ -3,7 +3,6 @@ from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Task, TaskList
 from .serializers import TaskListSerializer, TaskSerializer, UserSerializer
 from rest_framework.response import Response
@@ -14,21 +13,35 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
-class UserSignUp(APIView):
-    # Allow any user (authenticated or not) to access this url
-    permission_classes = (AllowAny,)
+# @api_view(['POST'])
+# @permission_classes((AllowAny, ))
+# def UserSignUp(request):
+#     serializer = UserSerializer(data=request.data)
+#     if serializer.is_valid():
+#         user = serializer.save()
+#         user.set_password(serializer.data['password'])
+#         user.save()
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({'token': token.key})
+#
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@permission_classes((AllowAny, ))
+class UserSignUp(CreateAPIView):
+    authentication_classes = ()
+    permission_classes = ()
+    serializer_class = UserSerializer
 
-    def post(self, request):
-        user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def perform_create(self, serializer):
+        return serializer.save()
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def UserSignIn(request):
     serializer = AuthTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -50,11 +63,10 @@ class tasklist_list(generics.ListCreateAPIView):
     serializer_class = TaskListSerializer
 
     def get_queryset(self):
-        return TaskList.objects.filter(owner=self.request.user)
+        return TaskList.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
-
+        return serializer.save(user=self.request.user)
 
 
 class tasklist_detail(generics.RetrieveUpdateDestroyAPIView):
@@ -86,7 +98,7 @@ class task(generics.ListCreateAPIView):
         return Task.objects.filter(task_list=self.get_object())
 
     def perform_create(self, serializer):
-        return serializer.save(task_list=self.get_object(), owner=self.request.user)
+        return serializer.save(task_list=self.get_object())
 
 
 class task_detail(generics.RetrieveUpdateDestroyAPIView):
@@ -104,83 +116,3 @@ class task_detail(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
 
-
-# @csrf_exempt
-# def tasklist_list(request):
-#     print(request)
-#     print('popopopo')
-#     if request.method == 'GET':
-#         tasklists = TaskList.objects.all()
-#         serializer = TaskListSerializer(tasklists, many=True)
-#         return JsonResponse(serializer.data, safe=False, status=200)
-#
-#     elif request.method == 'POST':
-#         data = JSONParser().parse(request)
-#         serializer = TaskListSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data, status=201)
-#         return JsonResponse(serializer.errors)
-#
-#
-# @csrf_exempt
-# def tasklist_detail(request, pk):
-#     try:
-#         tasklist = TaskList.objects.get(id=pk)
-#     except TaskList.DoesNotExist as e:
-#         return JsonResponse({'error': str(e)})
-#
-#     if request.method == 'GET':
-#         serializer = TaskListSerializer(tasklist)
-#         return JsonResponse(serializer.data, status=200)
-#     elif request.method == 'PUT':
-#         data = json.loads(request.body)
-#         serializer = TaskListSerializer(instance=tasklist, data=data)
-#         if serializer.is_valid():
-#             serializer.save() # update function in serializer class
-#             return JsonResponse(serializer.data, status=200)
-#         return JsonResponse(serializer.errors)
-#     elif request.method == 'DELETE':
-#         tasklist.delete()
-#         return JsonResponse({}, status=204)
-#
-# @csrf_exempt
-# def tasklist_task_list(request, pk):
-#     if request.method == 'GET':
-#         try:
-#             tasklist = TaskList.objects.get(id=pk)
-#         except TaskList.DoesNotExist as e:
-#             return JsonResponse({'error': str(e)})
-#
-#         tasks = tasklist.task_set.all()
-#         serializer = TaskSerializer(tasks, many=True)
-#         return JsonResponse(serializer.data, safe=False)
-#
-#     elif request.method == 'POST':
-#         data = json.loads(request.body)
-#         serializer = TaskSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse(serializer.data, status=201)
-#         return JsonResponse(serializer.errors)
-# @csrf_exempt
-# def task_detail(request, pk):
-#     try:
-#         task = Task.objects.get(id=pk)
-#     except Task.DoesNotExist as e:
-#         return JsonResponse({'error': str(e)})
-#
-#     if request.method == 'GET':
-#         serializer = TaskSerializer(task)
-#         return JsonResponse(serializer.data, status=200)
-#     elif request.method == 'PUT':
-#         data = json.loads(request.body)
-#         serializer = TaskSerializer(instance=task, data=data)
-#         if serializer.is_valid():# update function in serializer class
-#             return JsonResponse(serializer.data, status=200)
-#         return JsonResponse(serializer.errors)
-#     elif request.method == 'DELETE':
-#         task.delete()
-#         return JsonResponse({}, status=204)
-#
-#
